@@ -1,0 +1,21 @@
+
+query selectUsers {
+  description: "Select all Users"
+  statement:
+      SELECT org.acme.trading.User
+}
+
+query selectPutAction{
+  description: "Select all PutAction Transaction during [startTime,endTime)."
+  statement:
+      SELECT org.acme.trading.PutAction
+          WHERE ((timex >= _$startTime) AND (timex < _$endTime) AND (consumption == _$idUser) AND (production == _$idUser))
+
+}
+
+
+query selectAllPutAction{
+  description: "Select all PutAction Transaction during [startTime,endTime)."
+  statement:
+      SELECT org.acme.trading.PutAction
+}

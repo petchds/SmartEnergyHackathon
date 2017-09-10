@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<style type="text/css">
+		.selector-for-some-widget {
+		  -webkit-box-sizing: content-box;
+		     -moz-box-sizing: content-box;
+		          box-sizing: content-box;
+		}
+		.bg-faded {
+			/*color:#ffffff;*/
+		    /*background-color: #383838;*/
+		}
+		.navbar-light .navbar-brand, .navbar-light .navbar-toggler {
+		    /*color:#ffffff;*/
+		}
+		.graph-container{
+			position: relative;
+			width: 100%;
+			padding: 20px;
+		}
+		.label{
+			position: relative;
+			width: 100%;
+			font-weight: bold;
+			padding-left: 20px;
+			display: inline-block;
+		}
+		.info{
+			font-weight: normal;
+			padding-left: 20px;
+			display: inline-block;
+		}
+		.meter-card{
+			position: relative;
+			width: 95%;
+			margin:0 auto;
+			border-radius: 10px;
+			border: 1px solid #ddd;
+			padding: 10px;
+		}
+	</style>
+	</head>
+	<body>
+
+		<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+		  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+		    <span class="navbar-toggler-icon"></span>
+		  </button>
+		  <a class="navbar-brand" href="#">EnCore - Dashboard</a>
+		  <div class="collapse navbar-collapse" id="navbarNav">
+		    <ul class="navbar-nav">
+		      <li class="nav-item active">
+		        <a class="nav-link" href="#">Monitoring<span class="sr-only">(current)</span></a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="#">Market</a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link disabled" href="#">Setting</a>
+		      </li>
+		    </ul>
+		  </div>
+		</nav>
+		<h1 style="padding: 20px;">Smart Grbc Monitoring</h1>
+<!--    		<div class="row">
+ 			<div class="col-md-6">
+ 				<div class="label">Smart Meter Id : <span class="info" class="meter-id">17-123456789-0142</span> 
+ 				</div>
+			</div> 
+ 			<div class="col-md-6">
+ 				<div class="label">Name : <span class="info" class="meter-name">EnCore Team</span> 
+ 				</div>
+			</div>  				
+   		</div> -->
+
+      	<div class="row">
+   			<div class="col-md-12">
+   				<div class="graph-container">
+   					<canvas id="sum-chart" width="400" height="100"></canvas>
+   				</div>
+   			</div>
+      		<div class="col-md-12">
+   				<div class="graph-container">
+   					<canvas id="price-chart" width="400" height="100"></canvas>
+   				</div>
+   			</div>
+   		</div>
+       	<div class="row" id="indiv-meter-info" style="padding: 20px">
+   		</div>
+		<div class="row">
+ 			<div class="col-md-12">
+ 				<div class="label" style="padding:20px">Transaction : </div>
+ 				<div style="margin: 0 20px 20px 20px;padding:20px;background: #ddd;height: 300px;overflow: auto;">
+ 					1<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2
+ 				</div>
+			</div> 			
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+		<script>
+
+		var gConfig3 ={
+		    type: 'line',
+		    data: {
+		        datasets: [{
+		        	radius: 0,
+		        	label:'Energy Summary',
+		            data: [],
+		            fill:true,
+		            backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Power (kW.H)'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Energy Summary'
+		        }
+		    }
+		};
+		var gConfig4 ={
+		    type: 'line',
+		    data: {
+		        datasets: [{
+		        	radius: 0,
+		        	label:'Enery Price on Market',
+		            data: [],
+		            fill:false,
+		            backgroundColor: 'rgb(54, 162, 235)',
+                    borderColor: 'rgb(54, 162, 235)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'USD'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Enery Price on Market'
+		        }
+		    }
+		};
+		var sumCtx = document.getElementById("sum-chart").getContext('2d');
+		var priceCtx = document.getElementById("price-chart").getContext('2d');
+		var index = 1;
+		var index2 = 1;
+		var index3 = 1;
+		var index4 = 1;
+		var mIndex = 90;
+		var sumEner =0;
+		var oldEner =0;
+		var remain = 100;
+		var priceUSD = 0.1;
+		var fixedPrice =0.1;
+		var sumChart = new Chart(sumCtx, gConfig3);
+		var priceChart = new Chart(priceCtx, gConfig4);
+		var dataTimeout=setTimeout(updateData,1000);
+		var d1 =Math.random()*10;
+		var d2 =Math.random()*10;
+		var d3 =Math.random()*10;
+		function updateData(){
+			lastestMeterInfo();
+			var today = new Date();
+	  		var h = today.getHours();
+			var m = today.getMinutes();
+			var s = today.getSeconds();
+
+            if (gConfig3.data.datasets.length > 0) {
+            	if(index3 > mIndex){
+					gConfig3.data.labels.shift();
+					gConfig3.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+					index3=mIndex;
+            	}
+
+                gConfig3.data.labels.push(h+":"+m+":"+s);
+                gConfig3.data.datasets.forEach(function(dataset) {
+                    dataset.data.push(sumEner);
+                });
+                index3++;
+
+                sumChart.update();
+            }
+            if (gConfig4.data.datasets.length > 0) {
+            	if(index4 > mIndex){
+					gConfig4.data.labels.shift();
+					gConfig4.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+					index4=mIndex;
+            	}
+
+                gConfig4.data.labels.push(h+":"+m+":"+s);
+                gConfig4.data.datasets.forEach(function(dataset) {
+                	if(sumEner==0){
+                		priceUSD==0.1;
+                	}else{
+                		priceUSD = priceUSD + (-0.0025)*(sumEner-oldEner);
+                		if((sumEner>0)&&(priceUSD>fixedPrice)){
+                			priceUSD = fixedPrice;
+                		}else if((sumEner<0)&&(priceUSD<fixedPrice)){
+                			priceUSD = fixedPrice;
+                		}
+                		// if(priceUSD<0.05){
+                		// 	priceUSD = 0.05;
+                		// }
+                	}
+
+                    dataset.data.push(priceUSD);
+                });
+                index4++;
+
+                priceChart.update();
+            }
+            dataTimeout=setTimeout(updateData,1000);
+		}
+	
+		var sumProd=0;
+		var sumCons=0;
+	    function lastestMeterInfo(){
+        var posting = $.post( "bcservice.php", { action:'lastest'} );
+	         posting.done(function( data ) {
+
+				sumProd=0;
+			    sumCons=0;
+	         	var temp = jQuery.parseJSON(data);
+	         	var tempCard ='';
+	         	if(data){
+	         		for(var i=0;i<temp.meter_size;i++){
+	         			sumProd+=parseFloat(temp.meter_info[i].e_prod);
+	         			sumCons+=parseFloat(temp.meter_info[i].e_cons);
+	         			tempCard +=structDashcard(temp.meter_info[i].meter_id,temp.meter_info[i].e_prod,temp.meter_info[i].e_cons);
+
+	         		}
+	         		oldEner = sumEner;
+	         		sumEner = sumProd - sumCons;
+	         		$('#indiv-meter-info').empty().append(tempCard);
+	         		console.log(sumEner);
+	         	}				 
+	         });	
+	    }
+	    function structDashcard(meter_,prod_,cons_){
+	    	if(parseFloat(prod_)>parseFloat(cons_)){
+	    		return '<div class="col-md-4" style="margin-bottom:10px;"><div class="meter-card" style="background-color:rgba(75, 192, 192, 0.2)"><div class="label" style="padding:0;">Meter Id : '+meter_+'</div><br><div>P : '+prod_+'</div><div>C : '+cons_+'</div></div></div>';
+	    	}else{
+	    		return '<div class="col-md-4" style="margin-bottom:10px;"><div class="meter-card" style="background-color:rgba(255, 99, 132, 0.2)"><div class="label" style="padding:0;">Meter Id : '+meter_+'</div><br><div>P : '+prod_+'</div><div>C : '+cons_+'</div></div></div>';
+	    	}
+	    }
+	    
+		
+	</script>
+
+	</body>
+</html>

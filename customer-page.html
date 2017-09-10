@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<style type="text/css">
+		.selector-for-some-widget {
+		  -webkit-box-sizing: content-box;
+		     -moz-box-sizing: content-box;
+		          box-sizing: content-box;
+		}
+		.bg-faded {
+			/*color:#ffffff;*/
+		    /*background-color: #383838;*/
+		}
+		.navbar-light .navbar-brand, .navbar-light .navbar-toggler {
+		    /*color:#ffffff;*/
+		}
+		.graph-container{
+			position: relative;
+			width: 100%;
+			padding: 20px;
+		}
+		.label{
+			position: relative;
+			width: 100%;
+			font-weight: bold;
+			padding-left: 20px;
+			display: inline-block;
+		}
+		.info{
+			font-weight: normal;
+			padding-left: 20px;
+			display: inline-block;
+		}
+	</style>
+	</head>
+	<body>
+
+		<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+		  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+		    <span class="navbar-toggler-icon"></span>
+		  </button>
+		  <a class="navbar-brand" href="#">EnCore</a>
+		  <div class="collapse navbar-collapse" id="navbarNav">
+		    <ul class="navbar-nav">
+		      <li class="nav-item active">
+		        <a class="nav-link" href="#">Monitoring<span class="sr-only">(current)</span></a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="#">Market</a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link disabled" href="#">Setting</a>
+		      </li>
+		    </ul>
+		  </div>
+		</nav>
+		<h1 style="padding: 20px;">Home Monitoring</h1>
+   		<div class="row">
+ 			<div class="col-md-6">
+ 				<div class="label">Smart Meter Id : <span class="info" id="meter-id">17-123456789-0142</span> 
+ 				</div>
+			</div> 
+ 			<div class="col-md-6">
+ 				<div class="label">Name : <span class="info" id="meter-name">EnCore Team</span> 
+ 				</div>
+			</div>  				
+   		</div>
+   		<div class="row">
+   			<div class="col-md-6">
+   				<div class="graph-container">
+   					<canvas id="prod-chart" width="400" height="300"></canvas>
+   				</div>
+   			</div>
+			<div class="col-md-6">
+   				<div class="graph-container">
+   					<canvas id="cons-chart" width="400" height="300"></canvas>
+   				</div>
+   			</div>
+   		</div>
+      	<div class="row">
+   			<div class="col-md-6">
+   				<div class="graph-container">
+   					<canvas id="sum-chart" width="400" height="300"></canvas>
+   				</div>
+   			</div>
+			<div class="col-md-6">
+   				<div class="graph-container">
+   					<canvas id="remain-chart" width="400" height="300"></canvas>
+   				</div>
+   			</div>
+   		</div>
+		<div class="row">
+ 			<div class="col-md-12">
+ 				<div class="label" style="padding:20px">Transaction : </div>
+ 				<div style="margin: 0 20px 20px 20px;padding:20px;background: #ddd;height: 300px;overflow: auto;">
+ 					1<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2<br>2
+ 				</div>
+			</div> 			
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script>
+		var meter_id='17-123456789-'+Math.round(Math.random()*10000);
+		$('#meter-id').empty().append(meter_id);
+		var gConfig ={
+		    type: 'line',
+		    data: {
+		    	labels:[],
+		        datasets: [{
+		        	label:'Production',
+		            data: [],
+		            fill:false,
+		            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)'
+		        },{
+		        	label:'5 Min. Predictive Production ',
+		            data: [],
+		            fill:false,
+		            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Power (kW.H)'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                        
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Production'
+		        }
+		    }
+		 };
+		var gConfig2 ={
+		    type: 'line',
+		    data: {
+		        datasets: [{
+		        	label:'Consumption',
+		            data: [],
+		            fill:true,
+		            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    borderColor: 'rgb(255, 159, 64)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Power (kW.H)'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Consumption'
+		        }
+		    }
+		};
+		var gConfig3 ={
+		    type: 'line',
+		    data: {
+		        datasets: [{
+		        	radius: 0,
+		        	label:'Energy Summary',
+		            data: [],
+		            fill:true,
+		            backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Power (kW.H)'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Energy Summary'
+		        }
+		    }
+		};
+
+		var gConfig4 ={
+		    type: 'line',
+		    data: {
+		        datasets: [{
+		        	radius: 0,
+		        	label:'Remaining Credit',
+		            data: [],
+		            fill:true,
+		            backgroundColor: 'rgb(153, 102, 255)',
+                    borderColor: 'rgb(153, 102, 255)'
+		        }]
+		    },
+		    options: {
+ 				scales: {
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'USD'
+                        },
+			            ticks: {
+			                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+			            }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }]
+                },
+		        title: {
+		            display: true,
+		            text: 'Remaining Credit'
+		        }
+		    }
+		};
+		var prodCtx = document.getElementById("prod-chart").getContext('2d');
+		var consCtx = document.getElementById("cons-chart").getContext('2d');
+		var sumCtx = document.getElementById("sum-chart").getContext('2d');
+		var remainCtx = document.getElementById("remain-chart").getContext('2d');
+		var index = 1;
+		var index2 = 1;
+		var index3 = 1;
+		var index4 = 1;
+		var mIndex = 60;
+		var prod = 0;
+		var cons = 0;
+		var remain = 100;
+		var prodChart = new Chart(prodCtx, gConfig);
+		var consChart = new Chart(consCtx, gConfig2);
+		var sumChart = new Chart(sumCtx, gConfig3);
+		var remainChart = new Chart(remainCtx, gConfig4);
+		var dataTimeout=setTimeout(updateData,1000);
+		var d1 =Math.random()*10;
+		var d2 =Math.random()*10;
+		var d3 =Math.random()*10;
+		function updateData(){
+			var today = new Date();
+	  		var h = today.getHours();
+			var m = today.getMinutes();
+			var s = today.getSeconds();
+            if (gConfig.data.datasets.length > 0) {
+            	if(index > mIndex){
+					gConfig.data.labels.shift();
+					gConfig.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+                	index=mIndex;
+            	}
+
+                gConfig.data.labels.push(h+":"+m+":"+s);
+                var i=0;
+                gConfig.data.datasets.forEach(function(dataset) {
+                	if(i==0){
+                		prod = randomly(i);
+                    	dataset.data.push(prod);
+                    }else{
+                    	dataset.data.push(randomly(i))
+                    }
+                    
+                    i++;
+                });
+                index++;
+                prodChart.update();
+            }
+
+            if (gConfig2.data.datasets.length > 0) {
+            	if(index2 > mIndex){
+					gConfig2.data.labels.shift();
+					gConfig2.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+					index2=mIndex;
+            	}
+
+                gConfig2.data.labels.push(h+":"+m+":"+s);
+                gConfig2.data.datasets.forEach(function(dataset) {
+                	if(remain<0){
+                		cons = 0;
+                	}else{
+	                	cons = randomly(3);
+                	}
+	                dataset.data.push(cons);
+                });
+                index2++;
+                consChart.update();
+            }
+
+            if (gConfig3.data.datasets.length > 0) {
+            	if(index3 > mIndex){
+					gConfig3.data.labels.shift();
+					gConfig3.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+					index3=mIndex;
+            	}
+
+                gConfig3.data.labels.push(h+":"+m+":"+s);
+                gConfig3.data.datasets.forEach(function(dataset) {
+                    dataset.data.push(prod-cons);
+                    updateData2DB();
+                });
+                index3++;
+                sumChart.update();
+            }
+
+            if (gConfig4.data.datasets.length > 0) {
+            	if(index4 > mIndex){
+					gConfig4.data.labels.shift();
+					gConfig4.data.datasets.forEach(function(dataset) {
+                    	dataset.data.shift();
+                	});
+					index4=mIndex;
+            	}
+
+                gConfig4.data.labels.push(h+":"+m+":"+s);
+                gConfig4.data.datasets.forEach(function(dataset) {
+                	remain+=((prod-cons)*0.1);
+                    dataset.data.push(remain);
+                });
+                index4++;
+                remainChart.update();
+            }
+            dataTimeout=setTimeout(updateData,1000);
+		}
+		function writeToFile(data){
+		    var fso = new ActiveXObject("Scripting.FileSystemObject");
+		    var fh = fso.OpenTextFile("sum-en1.txt", 8, false, 0);
+		    fh.WriteLine(data);
+		    fh.Close();
+		}
+
+		function randomly(i) {
+			if(i==0){
+				return (d1*0.9)+(Math.random());
+			}else if(i==1){
+				return (d2*0.9)+(Math.random());
+			}else{
+				return Math.random()*10;
+			}
+		};	
+
+      function updateData2BC(){
+
+        var posting = $.post( "bcservice.php", { action:'update',meter_id:meter_id,e_prod:prod,e_cons:cons} );
+        posting.done(function( data ) {
+			jQuery.parseJSON('');
+        });	
+       }
+
+      function getData2BC(){
+
+        var posting = $.post( "bcservice.php", { action:'qeury'} );
+        posting.done(function( data ) {
+			jQuery.parseJSON('');
+        });	
+       }
+       var unit_=0;
+       var cost_=0;
+      function submitTransaction2BC(){
+
+        var posting = $.post( "bcservice.php", { action:'purchase',unit:unit_,cost:cost_} );
+        posting.done(function( data ) {
+			jQuery.parseJSON('');
+        });	
+       }		
+	</script>
+
+	</body>
+</html>

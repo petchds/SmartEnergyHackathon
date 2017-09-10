@@ -1,0 +1,77 @@
+/**
+ * Commodity trading network
+ */
+namespace org.acme.trading
+
+participant User identified by idUser{
+    o String idUser
+    o String username
+    o String password
+    --> Wallet wallet
+    --> Consumption consumption
+    --> Production production
+    --> Storage storage
+}
+
+asset Wallet identified by idWallet{
+    o String idWallet
+    o Double money
+    --> User owner
+}
+
+asset Consumption identified by idConsumption{
+    o String idConsumption
+    o Double power
+    o Double priceUpperLimit
+    --> User owner
+}
+
+asset Production identified by idProduction{
+    o String idProduction
+    o Double power
+    o Double priceLowerLimit
+    --> User owner
+}
+
+asset Storage identified by idStorage{
+    o String idStorage
+    o Double power
+    o Double priceLowerLimit
+    --> User owner
+}
+
+transaction Purchase {
+    o Double power
+    o Double cost
+    o Double lossRate
+    o Double costRate
+    o Long timex
+    --> User seller
+    --> User buyer
+}
+
+transaction PutAction{
+    o Double produce
+    o Double consume
+    o Long timex
+    --> Production production
+    --> Consumption consumption
+}
+
+transaction PutConsumption{
+    o Double power
+    o Long timex
+    --> Consumption consumption
+}
+
+transaction PutProduction{
+    o Double power
+    o Long timex
+    --> Production production
+}
+
+transaction PutStorage{
+    o Double power
+    o Long timex
+    --> Storage storage
+}
